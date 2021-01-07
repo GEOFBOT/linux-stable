@@ -1618,7 +1618,15 @@ static int rtl8xxxu_identify_chip(struct rtl8xxxu_priv *priv)
 		return -ENOTSUPP;
 	}
 
-	if (val32 & SYS_CFG_BT_FUNC) {
+	if (priv->fops == &rtl8811au_fops) {
+		sprintf(priv->chip_name, "8811AU");
+		priv->rtl_chip = RTL8811A;
+		priv->rf_paths = 1;
+		priv->rx_paths = 1;
+		priv->tx_paths = 1;
+		priv->usb_interrupts = 1;
+		priv->has_wifi = 1;
+	} else if (val32 & SYS_CFG_BT_FUNC) {
 		if (priv->chip_cut >= 3) {
 			sprintf(priv->chip_name, "8723BU");
 			priv->rtl_chip = RTL8723B;
@@ -1688,6 +1696,8 @@ static int rtl8xxxu_identify_chip(struct rtl8xxxu_priv *priv)
 	case RTL8188E:
 	case RTL8192E:
 	case RTL8723B:
+	case RTL8811A:
+	case RTL8821A:
 		switch (val32 & SYS_CFG_VENDOR_EXT_MASK) {
 		case SYS_CFG_VENDOR_ID_TSMC:
 			sprintf(priv->chip_vendor, "TSMC");
@@ -1713,8 +1723,12 @@ static int rtl8xxxu_identify_chip(struct rtl8xxxu_priv *priv)
 		}
 	}
 
-	val32 = rtl8xxxu_read32(priv, REG_GPIO_OUTSTS);
-	priv->rom_rev = (val32 & GPIO_RF_RL_ID) >> 28;
+	if (priv->rtl_chip == RTL8811A) {
+		priv->rom_rev = 0;
+	} else {
+		val32 = rtl8xxxu_read32(priv, REG_GPIO_OUTSTS);
+		priv->rom_rev = (val32 & GPIO_RF_RL_ID) >> 28;
+	}
 
 	val16 = rtl8xxxu_read16(priv, REG_NORMAL_SIE_EP_TX);
 	if (val16 & NORMAL_SIE_EP_TX_HIGH_MASK) {
@@ -6744,6 +6758,10 @@ static void rtl8xxxu_disconnect(struct usb_interface *interface)
 }
 
 static const struct usb_device_id dev_table[] = {
+/* Jaguar-series chips 8811au, 8821au, 8812au */
+{USB_DEVICE_AND_INTERFACE_INFO(0x2357, 0x011e, 0xff, 0xff, 0xff),
+	 .driver_info = (unsigned long)&rtl8811au_fops},
+/* --- */
 {USB_DEVICE_AND_INTERFACE_INFO(USB_VENDOR_ID_REALTEK, 0x8724, 0xff, 0xff, 0xff),
 	.driver_info = (unsigned long)&rtl8723au_fops},
 {USB_DEVICE_AND_INTERFACE_INFO(USB_VENDOR_ID_REALTEK, 0x1724, 0xff, 0xff, 0xff),
