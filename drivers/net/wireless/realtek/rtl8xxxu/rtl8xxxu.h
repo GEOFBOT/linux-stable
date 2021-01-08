@@ -865,6 +865,37 @@ struct rtl8192eu_efuse {
 	u8 res14[0xc3];
 };
 
+struct rtl8811au_efuse {
+	__le16 rtl_id;
+	u8 res0[0x07];
+	u8 usb_mode; /* 0x08 */
+	u8 res2[0xaf];
+	u8 channel_plan; /* 0xb8 */
+	u8 xtal_k; /* 0xb9 */
+	u8 thermal_meter; /* 0xba */
+	u8 iqk_lck; /*0xbb*/
+	u8 pa_type;	/* 0xbc */
+	u8 lna_type_2g; /* 0xbd */
+	u8 res3;
+	u8 lna_type_5g; /* 0xbf */
+	u8 res4;
+	u8 rf_board_option; /* 0xc1 */
+	u8 rf_feature_option; /* 0xc2 */
+	u8 rf_bt_setting; /* 0xc3 */
+	u8 res5[5];
+	u8 rf_antenna_option; /* 0xc9 */
+	u8 unknown; /*0xca*/
+	u8 country_code; /* 0xcb */
+	u8 res6[4];
+	u8 vid; /* 0xd0 */
+	u8 res7;
+	u8 pid; /* 0xd2 */
+	u8 res8[0x31];
+	u8 usb_optional_function; /*0x104*/
+	u8 res10[1]; /* TODO off by one somewhere */
+	u8 mac_addr[ETH_ALEN]; /* 0x107 */
+};
+
 struct rtl8xxxu_reg8val {
 	u16 reg;
 	u8 val;
@@ -1374,6 +1405,7 @@ struct rtl8xxxu_priv {
 		struct rtl8723bu_efuse efuse8723bu;
 		struct rtl8192cu_efuse efuse8192;
 		struct rtl8192eu_efuse efuse8192eu;
+		struct rtl8811au_efuse efuse8811au;
 	} efuse_wifi;
 	u32 adda_backup[RTL8XXXU_ADDA_REGS];
 	u32 mac_backup[RTL8XXXU_MAC_REGS];

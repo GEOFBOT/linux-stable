@@ -1626,6 +1626,7 @@ static int rtl8xxxu_identify_chip(struct rtl8xxxu_priv *priv)
 		priv->tx_paths = 1;
 		priv->usb_interrupts = 1;
 		priv->has_wifi = 1;
+		priv->chip_cut += 1;
 	} else if (val32 & SYS_CFG_BT_FUNC) {
 		if (priv->chip_cut >= 3) {
 			sprintf(priv->chip_name, "8723BU");
@@ -1805,6 +1806,7 @@ rtl8xxxu_read_efuse8(struct rtl8xxxu_priv *priv, u16 offset, u8 *data)
 	val32 = rtl8xxxu_read32(priv, REG_EFUSE_CTRL);
 
 	*data = val32 & 0xff;
+	dev_dbg(&priv->udev->dev, "efuse8: %i, %i", offset, *data);
 	return 0;
 }
 
@@ -1915,6 +1917,13 @@ static int rtl8xxxu_read_efuse(struct rtl8xxxu_priv *priv)
 	}
 
 exit:
+	rtl8xxxu_read_efuse8(priv, 1021, &val8);
+	dev_dbg(&priv->udev->dev, "wmode %i", val8);
+	rtl8xxxu_read_efuse8(priv, 1020, &val8);
+	dev_dbg(&priv->udev->dev, "wmode %i", val8);
+
+
+
 	rtl8xxxu_write8(priv, REG_EFUSE_ACCESS, EFUSE_ACCESS_DISABLE);
 
 	return ret;
@@ -2109,6 +2118,7 @@ int rtl8xxxu_load_firmware(struct rtl8xxxu_priv *priv, char *fw_name)
 	case 0x88c0:
 	case 0x5300:
 	case 0x2300:
+	case 0x2100: /* for 8821au */
 		break;
 	default:
 		ret = -EINVAL;
@@ -3935,6 +3945,9 @@ static int rtl8xxxu_init_device(struct ieee80211_hw *hw)
 	 */
 	rtl8xxxu_write16(priv, REG_TRXFF_BNDY + 2, fops->trxff_boundary);
 
+	/* TODO 8812A */
+	/* _InitTransferPageSize_8812AUsb(Adapter); */
+
 	ret = rtl8xxxu_download_firmware(priv);
 	dev_dbg(dev, "%s: download_firmware %i\n", __func__, ret);
 	if (ret)
@@ -3952,6 +3965,22 @@ static int rtl8xxxu_init_device(struct ieee80211_hw *hw)
 	dev_dbg(dev, "%s: init_mac %i\n", __func__, ret);
 	if (ret)
 		goto exit;
+
+	/* TODO this needs to be done for all jaguar chips */
+	/* Init CR MACTXEN, MACRXEN after setting RxFF boundary REG_TRXFF_BNDY to patch */
+	/* Hw bug which Hw initials RxFF boundry size to a value which is larger than the real Rx buffer size in 88E. */
+	/* 2011.08.05. by tynli. */
+	if (priv->rtl_chip == RTL8811A) {
+		val8 = rtl8xxxu_read8(priv, REG_CR);
+		rtl8xxxu_write8(priv, REG_CR,
+				val8 | CR_MAC_TX_ENABLE | CR_MAC_RX_ENABLE);
+	}
+
+	/* test led */
+	val8 = rtl8xxxu_read8(priv, REG_LEDCFG2) & 0xc0;
+	rtl8xxxu_write8(priv, REG_LEDCFG2, val8);
+	val32 = rtl8xxxu_read32(priv, REG_GPIO_PIN_CTRL_2);
+	rtl8xxxu_write32(priv, REG_GPIO_PIN_CTRL_2, (val32 | BIT(16)) & (~BIT(8)) & (~BIT(24)));
 
 	ret = rtl8xxxu_init_phy_bb(priv);
 	dev_dbg(dev, "%s: init_phy_bb %i\n", __func__, ret);

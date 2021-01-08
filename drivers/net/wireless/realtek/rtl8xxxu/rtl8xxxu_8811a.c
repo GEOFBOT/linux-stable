@@ -554,62 +554,64 @@ rtl8192e_set_tx_power(struct rtl8xxxu_priv *priv, int channel, bool ht40)
 	}
 }
 
-static int rtl8192eu_parse_efuse(struct rtl8xxxu_priv *priv)
+static int rtl8811au_parse_efuse(struct rtl8xxxu_priv *priv)
 {
-	struct rtl8192eu_efuse *efuse = &priv->efuse_wifi.efuse8192eu;
+	struct rtl8811au_efuse *efuse = &priv->efuse_wifi.efuse8811au;
 	int i;
 
 	if (efuse->rtl_id != cpu_to_le16(0x8129))
 		return -EINVAL;
 
+	/* mac addr at 0x107 EEPROM_MAC_ADDR_8821AU */
 	ether_addr_copy(priv->mac_addr, efuse->mac_addr);
 
-	memcpy(priv->cck_tx_power_index_A, efuse->tx_power_index_A.cck_base,
-	       sizeof(efuse->tx_power_index_A.cck_base));
-	memcpy(priv->cck_tx_power_index_B, efuse->tx_power_index_B.cck_base,
-	       sizeof(efuse->tx_power_index_B.cck_base));
+	/* memcpy(priv->cck_tx_power_index_A, efuse->tx_power_index_A.cck_base, */
+	/*        sizeof(efuse->tx_power_index_A.cck_base)); */
+	/* memcpy(priv->cck_tx_power_index_B, efuse->tx_power_index_B.cck_base, */
+	/*        sizeof(efuse->tx_power_index_B.cck_base)); */
 
-	memcpy(priv->ht40_1s_tx_power_index_A,
-	       efuse->tx_power_index_A.ht40_base,
-	       sizeof(efuse->tx_power_index_A.ht40_base));
-	memcpy(priv->ht40_1s_tx_power_index_B,
-	       efuse->tx_power_index_B.ht40_base,
-	       sizeof(efuse->tx_power_index_B.ht40_base));
+	/* memcpy(priv->ht40_1s_tx_power_index_A, */
+	/*        efuse->tx_power_index_A.ht40_base, */
+	/*        sizeof(efuse->tx_power_index_A.ht40_base)); */
+	/* memcpy(priv->ht40_1s_tx_power_index_B, */
+	/*        efuse->tx_power_index_B.ht40_base, */
+	/*        sizeof(efuse->tx_power_index_B.ht40_base)); */
 
-	priv->ht20_tx_power_diff[0].a =
-		efuse->tx_power_index_A.ht20_ofdm_1s_diff.b;
-	priv->ht20_tx_power_diff[0].b =
-		efuse->tx_power_index_B.ht20_ofdm_1s_diff.b;
+	/* priv->ht20_tx_power_diff[0].a = */
+	/* 	efuse->tx_power_index_A.ht20_ofdm_1s_diff.b; */
+	/* priv->ht20_tx_power_diff[0].b = */
+	/* 	efuse->tx_power_index_B.ht20_ofdm_1s_diff.b; */
 
-	priv->ht40_tx_power_diff[0].a = 0;
-	priv->ht40_tx_power_diff[0].b = 0;
+	/* priv->ht40_tx_power_diff[0].a = 0; */
+	/* priv->ht40_tx_power_diff[0].b = 0; */
 
-	for (i = 1; i < RTL8723B_TX_COUNT; i++) {
-		priv->ofdm_tx_power_diff[i].a =
-			efuse->tx_power_index_A.pwr_diff[i - 1].ofdm;
-		priv->ofdm_tx_power_diff[i].b =
-			efuse->tx_power_index_B.pwr_diff[i - 1].ofdm;
+	/* for (i = 1; i < RTL8723B_TX_COUNT; i++) { */
+	/* 	priv->ofdm_tx_power_diff[i].a = */
+	/* 		efuse->tx_power_index_A.pwr_diff[i - 1].ofdm; */
+	/* 	priv->ofdm_tx_power_diff[i].b = */
+	/* 		efuse->tx_power_index_B.pwr_diff[i - 1].ofdm; */
 
-		priv->ht20_tx_power_diff[i].a =
-			efuse->tx_power_index_A.pwr_diff[i - 1].ht20;
-		priv->ht20_tx_power_diff[i].b =
-			efuse->tx_power_index_B.pwr_diff[i - 1].ht20;
+	/* 	priv->ht20_tx_power_diff[i].a = */
+	/* 		efuse->tx_power_index_A.pwr_diff[i - 1].ht20; */
+	/* 	priv->ht20_tx_power_diff[i].b = */
+	/* 		efuse->tx_power_index_B.pwr_diff[i - 1].ht20; */
 
-		priv->ht40_tx_power_diff[i].a =
-			efuse->tx_power_index_A.pwr_diff[i - 1].ht40;
-		priv->ht40_tx_power_diff[i].b =
-			efuse->tx_power_index_B.pwr_diff[i - 1].ht40;
-	}
+	/* 	priv->ht40_tx_power_diff[i].a = */
+	/* 		efuse->tx_power_index_A.pwr_diff[i - 1].ht40; */
+	/* 	priv->ht40_tx_power_diff[i].b = */
+	/* 		efuse->tx_power_index_B.pwr_diff[i - 1].ht40; */
+	/* } */
 
-	priv->has_xtalk = 1;
-	priv->xtalk = priv->efuse_wifi.efuse8192eu.xtal_k & 0x3f;
+	/* priv->has_xtalk = 1; */
+	/* priv->xtalk = priv->efuse_wifi.efuse8192eu.xtal_k & 0x3f; */
 
-	dev_info(&priv->udev->dev, "Vendor: %.7s\n", efuse->vendor_name);
-	dev_info(&priv->udev->dev, "Product: %.11s\n", efuse->device_name);
-	if (memchr_inv(efuse->serial, 0xff, 11))
-		dev_info(&priv->udev->dev, "Serial: %.11s\n", efuse->serial);
-	else
-		dev_info(&priv->udev->dev, "Serial not available.\n");
+	/* vid at 0x100, pid at 0x102 */
+	/* dev_info(&priv->udev->dev, "Vendor: %.7s\n", efuse->vendor_name); */
+	/* dev_info(&priv->udev->dev, "Product: %.11s\n", efuse->device_name); */
+	/* if (memchr_inv(efuse->serial, 0xff, 11)) */
+	/* 	dev_info(&priv->udev->dev, "Serial: %.11s\n", efuse->serial); */
+	/* else */
+	/* 	dev_info(&priv->udev->dev, "Serial not available.\n"); */
 
 	if (rtl8xxxu_debug & RTL8XXXU_DEBUG_EFUSE) {
 		unsigned char *raw = priv->efuse_wifi.raw;
@@ -620,15 +622,17 @@ static int rtl8192eu_parse_efuse(struct rtl8xxxu_priv *priv)
 		for (i = 0; i < sizeof(struct rtl8192eu_efuse); i += 8)
 			dev_info(&priv->udev->dev, "%02x: %8ph\n", i, &raw[i]);
 	}
+
+	/* TODO ReadUsbType, ParseKFreeData */
 	return 0;
 }
 
-static int rtl8192eu_load_firmware(struct rtl8xxxu_priv *priv)
+static int rtl8811au_load_firmware(struct rtl8xxxu_priv *priv)
 {
 	char *fw_name;
 	int ret;
 
-	fw_name = "rtlwifi/rtl8192eu_nic.bin";
+	fw_name = "rtlwifi/rtl8821a_fw_nic.bin";
 
 	ret = rtl8xxxu_load_firmware(priv, fw_name);
 
@@ -1326,70 +1330,70 @@ static void rtl8192e_disabled_to_emu(struct rtl8xxxu_priv *priv)
 	rtl8xxxu_write8(priv, REG_APS_FSMCO + 1, val8);
 }
 
-static int rtl8192e_emu_to_active(struct rtl8xxxu_priv *priv)
-{
-	u8 val8;
-	u32 val32;
-	int count, ret = 0;
+/* static int rtl8192e_emu_to_active(struct rtl8xxxu_priv *priv) */
+/* { */
+/* 	u8 val8; */
+/* 	u32 val32; */
+/* 	int count, ret = 0; */
 
-	/* disable HWPDN 0x04[15]=0*/
-	val8 = rtl8xxxu_read8(priv, REG_APS_FSMCO + 1);
-	val8 &= ~BIT(7);
-	rtl8xxxu_write8(priv, REG_APS_FSMCO + 1, val8);
+/* 	/\* disable HWPDN 0x04[15]=0*\/ */
+/* 	val8 = rtl8xxxu_read8(priv, REG_APS_FSMCO + 1); */
+/* 	val8 &= ~BIT(7); */
+/* 	rtl8xxxu_write8(priv, REG_APS_FSMCO + 1, val8); */
 
-	/* disable SW LPS 0x04[10]= 0 */
-	val8 = rtl8xxxu_read8(priv, REG_APS_FSMCO + 1);
-	val8 &= ~BIT(2);
-	rtl8xxxu_write8(priv, REG_APS_FSMCO + 1, val8);
+/* 	/\* disable SW LPS 0x04[10]= 0 *\/ */
+/* 	val8 = rtl8xxxu_read8(priv, REG_APS_FSMCO + 1); */
+/* 	val8 &= ~BIT(2); */
+/* 	rtl8xxxu_write8(priv, REG_APS_FSMCO + 1, val8); */
 
-	/* disable WL suspend*/
-	val8 = rtl8xxxu_read8(priv, REG_APS_FSMCO + 1);
-	val8 &= ~(BIT(3) | BIT(4));
-	rtl8xxxu_write8(priv, REG_APS_FSMCO + 1, val8);
+/* 	/\* disable WL suspend*\/ */
+/* 	val8 = rtl8xxxu_read8(priv, REG_APS_FSMCO + 1); */
+/* 	val8 &= ~(BIT(3) | BIT(4)); */
+/* 	rtl8xxxu_write8(priv, REG_APS_FSMCO + 1, val8); */
 
-	/* wait till 0x04[17] = 1 power ready*/
-	for (count = RTL8XXXU_MAX_REG_POLL; count; count--) {
-		val32 = rtl8xxxu_read32(priv, REG_APS_FSMCO);
-		if (val32 & BIT(17))
-			break;
+/* 	/\* wait till 0x04[17] = 1 power ready*\/ */
+/* 	for (count = RTL8XXXU_MAX_REG_POLL; count; count--) { */
+/* 		val32 = rtl8xxxu_read32(priv, REG_APS_FSMCO); */
+/* 		if (val32 & BIT(17)) */
+/* 			break; */
 
-		udelay(10);
-	}
+/* 		udelay(10); */
+/* 	} */
 
-	if (!count) {
-		ret = -EBUSY;
-		goto exit;
-	}
+/* 	if (!count) { */
+/* 		ret = -EBUSY; */
+/* 		goto exit; */
+/* 	} */
 
-	/* We should be able to optimize the following three entries into one */
+/* 	/\* We should be able to optimize the following three entries into one *\/ */
 
-	/* release WLON reset 0x04[16]= 1*/
-	val8 = rtl8xxxu_read8(priv, REG_APS_FSMCO + 2);
-	val8 |= BIT(0);
-	rtl8xxxu_write8(priv, REG_APS_FSMCO + 2, val8);
+/* 	/\* release WLON reset 0x04[16]= 1*\/ */
+/* 	val8 = rtl8xxxu_read8(priv, REG_APS_FSMCO + 2); */
+/* 	val8 |= BIT(0); */
+/* 	rtl8xxxu_write8(priv, REG_APS_FSMCO + 2, val8); */
 
-	/* set, then poll until 0 */
-	val32 = rtl8xxxu_read32(priv, REG_APS_FSMCO);
-	val32 |= APS_FSMCO_MAC_ENABLE;
-	rtl8xxxu_write32(priv, REG_APS_FSMCO, val32);
+/* 	/\* set, then poll until 0 *\/ */
+/* 	val32 = rtl8xxxu_read32(priv, REG_APS_FSMCO); */
+/* 	val32 |= APS_FSMCO_MAC_ENABLE; */
+/* 	rtl8xxxu_write32(priv, REG_APS_FSMCO, val32); */
 
-	for (count = RTL8XXXU_MAX_REG_POLL; count; count--) {
-		val32 = rtl8xxxu_read32(priv, REG_APS_FSMCO);
-		if ((val32 & APS_FSMCO_MAC_ENABLE) == 0) {
-			ret = 0;
-			break;
-		}
-		udelay(10);
-	}
+/* 	for (count = RTL8XXXU_MAX_REG_POLL; count; count--) { */
+/* 		val32 = rtl8xxxu_read32(priv, REG_APS_FSMCO); */
+/* 		if ((val32 & APS_FSMCO_MAC_ENABLE) == 0) { */
+/* 			ret = 0; */
+/* 			break; */
+/* 		} */
+/* 		udelay(10); */
+/* 	} */
 
-	if (!count) {
-		ret = -EBUSY;
-		goto exit;
-	}
+/* 	if (!count) { */
+/* 		ret = -EBUSY; */
+/* 		goto exit; */
+/* 	} */
 
-exit:
-	return ret;
-}
+/* exit: */
+/* 	return ret; */
+/* } */
 
 static int rtl8192eu_active_to_lps(struct rtl8xxxu_priv *priv)
 {
@@ -1488,48 +1492,171 @@ exit:
 	return ret;
 }
 
-static int rtl8192eu_emu_to_disabled(struct rtl8xxxu_priv *priv)
+static int rtl8811a_emu_to_active(struct rtl8xxxu_priv *priv)
 {
 	u8 val8;
+	u32 val32;
+	int count, ret = 0;
 
-	/* 0x04[12:11] = 01 enable WL suspend */
+	/* 0x20[0] = 1 enable LDOA12 MACRO block for all interface*/
+	val8 = rtl8xxxu_read8(priv, REG_LDOA15_CTRL);
+	val8 |= LDOA15_ENABLE;
+	rtl8xxxu_write8(priv, REG_LDOA15_CTRL, val8);
+
+	/* 0x67[0] = 0 to disable BT_GPS_SEL pins*/
+	val8 = rtl8xxxu_read8(priv, 0x0067);
+	val8 &= ~BIT(4);
+	rtl8xxxu_write8(priv, 0x0067, val8);
+
+	mdelay(1);
+
+	/* 0x00[5] = 0 release analog Ips to digital, 1:isolation */
+	val8 = rtl8xxxu_read8(priv, REG_SYS_ISO_CTRL);
+	val8 &= ~SYS_ISO_ANALOG_IPS;
+	rtl8xxxu_write8(priv, REG_SYS_ISO_CTRL, val8);
+
+	/* disable SW LPS 0x04[10]=0 and WLSUS_EN 0x04[12:11]=0 */
 	val8 = rtl8xxxu_read8(priv, REG_APS_FSMCO + 1);
-	val8 &= ~(BIT(3) | BIT(4));
-	val8 |= BIT(3);
+	val8 &= ~(BIT(2) | BIT(3) | BIT(4));
 	rtl8xxxu_write8(priv, REG_APS_FSMCO + 1, val8);
 
-	return 0;
+	/* wait till 0x04[17] = 1 power ready*/
+	for (count = RTL8XXXU_MAX_REG_POLL; count; count--) {
+		val32 = rtl8xxxu_read32(priv, REG_APS_FSMCO);
+		if (val32 & BIT(17))
+			break;
+
+		udelay(10);
+	}
+
+	if (!count) {
+		ret = -EBUSY;
+		goto exit;
+	}
+
+	/* We should be able to optimize the following three entries into one */
+
+	/* release WLON reset 0x04[16]= 1*/
+	val8 = rtl8xxxu_read8(priv, REG_APS_FSMCO + 2);
+	val8 |= BIT(0);
+	rtl8xxxu_write8(priv, REG_APS_FSMCO + 2, val8);
+
+	/* disable HWPDN 0x04[15]= 0*/
+	val8 = rtl8xxxu_read8(priv, REG_APS_FSMCO + 1);
+	val8 &= ~BIT(7);
+	rtl8xxxu_write8(priv, REG_APS_FSMCO + 1, val8);
+
+	/* disable WL suspend*/
+	val8 = rtl8xxxu_read8(priv, REG_APS_FSMCO + 1);
+	val8 &= ~(BIT(3) | BIT(4));
+	rtl8xxxu_write8(priv, REG_APS_FSMCO + 1, val8);
+
+	/* set, then poll until 0 */
+	val32 = rtl8xxxu_read32(priv, REG_APS_FSMCO);
+	val32 |= APS_FSMCO_MAC_ENABLE;
+	rtl8xxxu_write32(priv, REG_APS_FSMCO, val32);
+
+	for (count = RTL8XXXU_MAX_REG_POLL; count; count--) {
+		val32 = rtl8xxxu_read32(priv, REG_APS_FSMCO);
+		if ((val32 & APS_FSMCO_MAC_ENABLE) == 0) {
+			ret = 0;
+			break;
+		}
+		udelay(10);
+	}
+
+	if (!count) {
+		ret = -EBUSY;
+		goto exit;
+	}
+
+        /*  {0x004F, PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK, PWR_INTF_ALL_MSK, PWR_BASEADDR_MAC, PWR_CMD_WRITE, BIT0, BIT0},/\*0x4C[24] = 0x4F[0] = 1, switch DPDT_SEL_P output from WL BB *\/\ */
+        /* {0x0067, PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK, PWR_INTF_ALL_MSK, PWR_BASEADDR_MAC, PWR_CMD_WRITE, (BIT5 | BIT4), (BIT5 | BIT4)},/\*0x66[13] = 0x67[5] = 1, switch for PAPE_G/PAPE_A from WL BB ; 0x66[12] = 0x67[4] = 1, switch LNAON from WL BB *\/\ */
+        /* {0x0025, PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK, PWR_INTF_ALL_MSK, PWR_BASEADDR_MAC, PWR_CMD_WRITE, BIT6, 0},/\*anapar_mac<118> , 0x25[6]=0 by wlan single function*\/\ */
+        /* {0x0049, PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK, PWR_INTF_ALL_MSK, PWR_BASEADDR_MAC, PWR_CMD_WRITE, BIT1, BIT1},/\*Enable falling edge triggering interrupt*\/\ */
+        /* {0x0063, PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK, PWR_INTF_ALL_MSK, PWR_BASEADDR_MAC, PWR_CMD_WRITE, BIT1, BIT1},/\*Enable GPIO9 interrupt mode*\/\ */
+        /* {0x0062, PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK, PWR_INTF_ALL_MSK, PWR_BASEADDR_MAC, PWR_CMD_WRITE, BIT1, 0},/\*Enable GPIO9 input mode*\/\ */
+        /* {0x0058, PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK, PWR_INTF_ALL_MSK, PWR_BASEADDR_MAC, PWR_CMD_WRITE, BIT0, BIT0},/\*Enable HSISR GPIO[C:0] interrupt*\/\ */
+        /* {0x005A, PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK, PWR_INTF_ALL_MSK, PWR_BASEADDR_MAC, PWR_CMD_WRITE, BIT1, BIT1},/\*Enable HSISR GPIO9 interrupt*\/\\*\/ */
+
+	val8 = rtl8xxxu_read8(priv, 0x4f);
+	val8 |= BIT(0);
+	rtl8xxxu_write8(priv, 0x4f, val8);
+
+	val8 = rtl8xxxu_read8(priv, 0x67);
+	val8 |= BIT(4) & BIT(5);
+	rtl8xxxu_write8(priv, 0x67, val8);
+
+	val8 = rtl8xxxu_read8(priv, 0x25);
+	val8 &= ~BIT(6);
+	rtl8xxxu_write8(priv, 0x25, val8);
+
+	val8 = rtl8xxxu_read8(priv, 0x49);
+	val8 |= BIT(1);
+	rtl8xxxu_write8(priv, 0x49, val8);
+
+	val8 = rtl8xxxu_read8(priv, 0x63);
+	val8 |= BIT(1);
+	rtl8xxxu_write8(priv, 0x63, val8);
+
+	val8 = rtl8xxxu_read8(priv, 0x62);
+	val8 &= ~BIT(1);
+	rtl8xxxu_write8(priv, 0x62, val8);
+
+	val8 = rtl8xxxu_read8(priv, 0x58);
+	val8 |= BIT(0);
+	rtl8xxxu_write8(priv, 0x58, val8);
+
+	val8 = rtl8xxxu_read8(priv, 0x5a);
+	val8 |= BIT(1);
+	rtl8xxxu_write8(priv, 0x5a, val8);
+
+
+	/* 0x4C[23] = 0x4E[7] = 1, switch DPDT_SEL_P output from WL BB */
+	/*
+	 * Note: Vendor driver actually clears this bit, despite the
+	 * documentation claims it's being set!
+	 */
+	/* val8 = rtl8xxxu_read8(priv, REG_LEDCFG2); */
+	/* val8 |= LEDCFG2_DPDT_SELECT; */
+	/* val8 &= ~LEDCFG2_DPDT_SELECT; */
+	/* rtl8xxxu_write8(priv, REG_LEDCFG2, val8); */
+
+exit:
+	return ret;
 }
 
 static int rtl8192eu_power_on(struct rtl8xxxu_priv *priv)
 {
+	u8 val8;
 	u16 val16;
 	u32 val32;
 	int ret;
 
 	ret = 0;
 
-	val32 = rtl8xxxu_read32(priv, REG_SYS_CFG);
-	if (val32 & SYS_CFG_SPS_LDO_SEL) {
-		rtl8xxxu_write8(priv, REG_LDO_SW_CTRL, 0xc3);
-	} else {
-		/*
-		 * Raise 1.2V voltage
-		 */
-		val32 = rtl8xxxu_read32(priv, REG_8192E_LDOV12_CTRL);
-		val32 &= 0xff0fffff;
-		val32 |= 0x00500000;
-		rtl8xxxu_write32(priv, REG_8192E_LDOV12_CTRL, val32);
-		rtl8xxxu_write8(priv, REG_LDO_SW_CTRL, 0x83);
-	}
+	/* TODO chck if already powered on */
+	/* 	val32 = rtl8xxxu_read32(priv, REG_SYS_CFG); */
+	/* if (val32 & SYS_CFG_SPS_LDO_SEL) { */
+	/* 	rtl8xxxu_write8(priv, REG_LDO_SW_CTRL, 0xc3); */
+	/* } else { */
+	/* 	/\* */
+	/* 	 * Raise 1.2V voltage */
+	/* 	 *\/ */
+	/* 	val32 = rtl8xxxu_read32(priv, REG_8192E_LDOV12_CTRL); */
+	/* 	val32 &= 0xff0fffff; */
+	/* 	val32 |= 0x00500000; */
+	/* 	rtl8xxxu_write32(priv, REG_8192E_LDOV12_CTRL, val32); */
+	/* 	rtl8xxxu_write8(priv, REG_LDO_SW_CTRL, 0x83); */
+	/* } */
 
 	/*
 	 * Adjust AFE before enabling PLL
 	 */
-	rtl8192e_crystal_afe_adjust(priv);
-	rtl8192e_disabled_to_emu(priv);
+	/* rtl8192e_crystal_afe_adjust(priv); */
+	rtl8xxxu_disabled_to_emu(priv);
 
-	ret = rtl8192e_emu_to_active(priv);
+	ret = rtl8811a_emu_to_active(priv);
 	if (ret)
 		goto exit;
 
@@ -1546,6 +1673,13 @@ static int rtl8192eu_power_on(struct rtl8xxxu_priv *priv)
 		  CR_MAC_TX_ENABLE | CR_MAC_RX_ENABLE |
 		  CR_SECURITY_ENABLE | CR_CALTIMER_ENABLE);
 	rtl8xxxu_write16(priv, REG_CR, val16);
+
+	/* only for 8821au and 8811au: */
+	val8 = rtl8xxxu_read8(priv, REG_SYS_CFG + 3);
+	if (val8 & BIT(0)) { /* LDO mode */
+		val8 = rtl8xxxu_read8(priv, 0x7c);
+		rtl8xxxu_write8(priv, 0x7c, val8 | BIT(6));
+	}
 
 exit:
 	return ret;
@@ -1582,7 +1716,8 @@ static void rtl8192eu_power_off(struct rtl8xxxu_priv *priv)
 	rtl8xxxu_reset_8051(priv);
 
 	rtl8192eu_active_to_emu(priv);
-	rtl8192eu_emu_to_disabled(priv);
+	/* FIXME */
+	/* rtl8192eu_emu_to_disabled(priv); */
 }
 
 static void rtl8192e_enable_rf(struct rtl8xxxu_priv *priv)
@@ -1627,12 +1762,12 @@ static void rtl8192e_enable_rf(struct rtl8xxxu_priv *priv)
 }
 
 struct rtl8xxxu_fileops rtl8811au_fops = {
-	.parse_efuse = rtl8192eu_parse_efuse,
-	.load_firmware = rtl8192eu_load_firmware,
+	.parse_efuse = rtl8811au_parse_efuse,
+	.load_firmware = rtl8811au_load_firmware,
 	.power_on = rtl8192eu_power_on,
 	.power_off = rtl8192eu_power_off,
 	.reset_8051 = rtl8xxxu_reset_8051,
-	.llt_init = rtl8xxxu_auto_llt_table,
+	.llt_init = rtl8xxxu_init_llt_table,
 	.init_phy_bb = rtl8192eu_init_phy_bb,
 	.init_phy_rf = rtl8192eu_init_phy_rf,
 	.phy_iq_calibrate = rtl8192eu_phy_iq_calibrate,
@@ -1654,7 +1789,7 @@ struct rtl8xxxu_fileops rtl8811au_fops = {
 	.adda_1t_path_on = 0x0fc01616,
 	.adda_2t_path_on_a = 0x0fc01616,
 	.adda_2t_path_on_b = 0x0fc01616,
-	.trxff_boundary = 0x3cff,
+	.trxff_boundary = 0x3e80 - 1,
 	.mactable = rtl8192e_mac_init_table,
 	.total_page_num = TX_TOTAL_PAGE_NUM_8192E,
 	.page_num_hi = TX_PAGE_NUM_HI_PQ_8192E,
