@@ -3869,6 +3869,8 @@ void rtl8xxxu_gen2_disable_rf(struct rtl8xxxu_priv *priv)
 
 static void rtl8xxxu_init_queue_reserved_page(struct rtl8xxxu_priv *priv)
 {
+	/* TODO 8821 uses "eq" as well */
+	/* TODO set page_num_{} */
 	struct rtl8xxxu_fileops *fops = priv->fops;
 	u32 hq, lq, nq, eq, pubq;
 	u32 val32;
